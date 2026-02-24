@@ -1,6 +1,7 @@
 I'm still doing this part...
 
 ## Big Pictures
+
 graph LR
     subgraph Device
         SCRCPY[Scrcpy Server]
