@@ -1,7 +1,7 @@
 I'm still doing this part...
 
 ## Big Pictures
-
+```mermaid
 graph LR
     subgraph Device
         SCRCPY[Scrcpy Server]
@@ -51,3 +51,4 @@ graph LR
     EVENT_PARSER -->|sdriver.Event| CH_EVENT
     CH_EVENT -->|SendEvent| DRIVER_IMPL
     DRIVER_IMPL -->|Inject| SCRCPY
+```
