@@ -107,3 +107,21 @@ func (wm *WebMaster) handlePairDevice(c *gin.Context) {
 
 	c.JSON(200, gin.H{"status": "paired"})
 }
+
+// handleGetVideoEncoders 获取设备支持的视频编码器
+// GET /api/device/encoders?device_id=xxx
+func (wm *WebMaster) handleGetVideoEncoders(c *gin.Context) {
+	deviceID := c.Query("device_id")
+	if deviceID == "" {
+		c.JSON(400, gin.H{"error": "device_id is required"})
+		return
+	}
+
+	encoders, err := android.GetVideoEncoders(deviceID)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"encoders": encoders})
+}

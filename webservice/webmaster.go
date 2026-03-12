@@ -85,6 +85,7 @@ func (wm *WebMaster) setRouter() {
 	api := r.Group("/api")
 	{
 		api.GET("/device/list", wm.handleListDevices)
+		api.GET("/device/encoders", wm.handleGetVideoEncoders)
 		api.POST("/device/connect", wm.handleConnectDevice)
 		api.POST("/device/pair", wm.handlePairDevice)
 		// api.POST("/device/discovery", wm.handleListDevicesDiscoveried)

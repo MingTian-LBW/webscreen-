@@ -1,19 +1,21 @@
+version: '3.8'
+
 services:
   webscreen:
     build: .
-    image: dukihiroi/webscreen:latest
     container_name: webscreen
-    network_mode: host
-    # If you want to use bridge network:
-    # You need to ensure that your device is accessible from the container
-    # You also need to forward the necessary UDP traffic. If you face problems on it, please use host network mode.
-    # ports:
-    #   - "8079:8079"
-    #   - "51200-51299:51200-51299/udp"
-    restart: unless-stopped
-    volumes:
-      - /dev/bus/usb:/dev/bus/usb
+    ports:
+      - "8079:8079"
     environment:
-      - GIN_MODE=release
-      # - PORT=8079
       - PIN=123456
+      - PORT=8079
+    # 使用 host 网络模式以便 ADB 连接设备
+    network_mode: host
+    # 允许访问设备
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    # 需要 privileged 权限以访问 USB 设备
+    privileged: true

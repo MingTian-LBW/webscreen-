@@ -178,6 +178,17 @@
                             </select>
                         </div>
 
+                        <div id="encoderSelectContainer" class="hidden">
+                            <label class="block text-xs font-medium text-gray-400 mb-1 ml-1" data-i18n="video_encoder">视频编码器</label>
+                            <select id="configVideoEncoder" class="md-input w-full px-3 py-2 rounded-lg text-white text-sm appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNyAxMGw1IDUgNS01eiIvPjwvc3ZnPg==')] bg-no-repeat bg-right">
+                                <option value="">自动</option>
+                            </select>
+                            <div class="flex justify-between items-center mt-2">
+                                <p class="text-[10px] text-gray-500 ml-1" data-i18n="encoder_tip">选择设备编码器，不选则自动</p>
+                                <button type="button" onclick="refreshEncoders()" class="text-[10px] text-[var(--md-sys-color-primary)] hover:underline" data-i18n="refresh_encoders">刷新</button>
+                            </div>
+                        </div>
+
                         <div class="flex items-center justify-between py-1">
                             <label for="configAudio" class="text-sm font-medium text-gray-300 cursor-pointer select-none ml-1" data-i18n="audio_enable">启用音频</label>
                             <input type="checkbox" id="configAudio" class="md-switch">

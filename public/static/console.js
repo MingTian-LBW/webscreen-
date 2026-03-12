@@ -15,6 +15,7 @@ const defaultScrcpyConfig = {
         max_fps: '',
         max_size: '',
         video_codec: 'h264',
+        video_encoder: '',
         audio: 'true',
         audio_codec: 'opus',
         video_bit_rate: 8000000,
@@ -331,6 +332,7 @@ function startStream(serial) {
             driver_config: {
                 max_fps: String(drv.max_fps || ''),
                 video_codec: drv.video_codec || "h264",
+                video_encoder: drv.video_encoder || "",
                 audio_codec: drv.audio_codec || "opus",
                 audio: drv.audio || "true",
                 video_bit_rate: String(drv.video_bit_rate || 8000000),
@@ -411,6 +413,16 @@ function showConfigModal(serial) {
         // document.getElementById('configVideoCodecOptions').value = drv.video_codec_options || '';
         document.getElementById('configAudio').checked = drv.audio === 'true';
         document.getElementById('configNewDisplay').value = drv.new_display || '';
+        
+        // Load video encoder
+        const encoderSelect = document.getElementById('configVideoEncoder');
+        const encoderContainer = document.getElementById('encoderSelectContainer');
+        if (drv.video_encoder) {
+            encoderSelect.value = drv.video_encoder;
+        } else {
+            encoderSelect.value = '';
+        }
+        encoderContainer.classList.remove('hidden');
     }
 
     document.getElementById('configModalTitle').textContent = i18n.t('config_device_title', {serial: serial});
@@ -447,6 +459,7 @@ function saveDeviceConfig() {
         drv.video_bit_rate = parseBitrate(bitrateInput + (bitrateInput.match(/[KMG]/i) ? '' : 'M'));
         drv.max_size = document.getElementById('configMaxSize').value.trim() || '';
         drv.video_codec = document.getElementById('configVideoCodec').value;
+        drv.video_encoder = document.getElementById('configVideoEncoder').value;
         // drv.video_codec_options = document.getElementById('configVideoCodecOptions').value.trim();
         drv.new_display = document.getElementById('configNewDisplay').value.trim();
         drv.audio = document.getElementById('configAudio').checked ? 'true' : 'false';
@@ -457,6 +470,73 @@ function saveDeviceConfig() {
     renderDeviceList();
     closeModal('configModal');
     showToast(i18n.t('config_saved'));
+}
+
+// --- Encoder Logic ---
+
+async function refreshEncoders() {
+    if (!activeConfigSerial) return;
+    
+    const device = knownDevices.find(d => d.device_id === activeConfigSerial);
+    if (!device) return;
+    
+    const encoderSelect = document.getElementById('configVideoEncoder');
+    const currentValue = encoderSelect.value;
+    
+    // Show loading state
+    encoderSelect.innerHTML = '<option value="">加载中...</option>';
+    
+    try {
+        const response = await fetch(`/api/device/encoders?device_id=${encodeURIComponent(activeConfigSerial)}`);
+        if (!response.ok) throw new Error('Failed to fetch encoders');
+        
+        const data = await response.json();
+        const encoders = data.encoders || [];
+        
+        // Build options
+        let optionsHtml = '<option value="">自动</option>';
+        
+        // Group encoders by type
+        const h264Encoders = encoders.filter(e => e.includes('avc') || e.toLowerCase().includes('h264'));
+        const h265Encoders = encoders.filter(e => e.includes('hevc') || e.toLowerCase().includes('h265'));
+        
+        if (h264Encoders.length > 0) {
+            optionsHtml += '<optgroup label="H.264 编码器">';
+            h264Encoders.forEach(enc => {
+                const selected = enc === currentValue ? 'selected' : '';
+                optionsHtml += `<option value="${enc}" ${selected}>${enc}</option>`;
+            });
+            optionsHtml += '</optgroup>';
+        }
+        
+        if (h265Encoders.length > 0) {
+            optionsHtml += '<optgroup label="H.265/HEVC 编码器">';
+            h265Encoders.forEach(enc => {
+                const selected = enc === currentValue ? 'selected' : '';
+                optionsHtml += `<option value="${enc}" ${selected}>${enc}</option>`;
+            });
+            optionsHtml += '</optgroup>';
+        }
+        
+        // Add other encoders
+        const otherEncoders = encoders.filter(e => !h264Encoders.includes(e) && !h265Encoders.includes(e));
+        if (otherEncoders.length > 0) {
+            optionsHtml += '<optgroup label="其他编码器">';
+            otherEncoders.forEach(enc => {
+                const selected = enc === currentValue ? 'selected' : '';
+                optionsHtml += `<option value="${enc}" ${selected}>${enc}</option>`;
+            });
+            optionsHtml += '</optgroup>';
+        }
+        
+        encoderSelect.innerHTML = optionsHtml;
+        showToast('编码器已刷新', 'success');
+        
+    } catch (error) {
+        console.error('Failed to refresh encoders:', error);
+        encoderSelect.innerHTML = '<option value="">获取失败</option>';
+        showToast('获取编码器失败', 'error');
+    }
 }
 
 // --- Toast Logic ---

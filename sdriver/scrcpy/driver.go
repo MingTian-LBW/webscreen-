@@ -268,6 +268,7 @@ func New(config map[string]string) (*ScrcpyDriver, error) {
 		"video_codec_options": video_codec_options, // bitrate-mode=2 to enable CBR
 		"video_bit_rate":      strconv.Itoa(video_bit_rate),
 		"video_codec":         config["video_codec"],
+		"video_encoder":       config["video_encoder"],
 		"audio":               config["audio"],
 		"audio_bit_rate":      config["audio_bit_rate"],
 		// "audio_codec_options": "durationUs=10000", // 10ms
@@ -275,8 +276,6 @@ func New(config map[string]string) (*ScrcpyDriver, error) {
 		"new_display": config["new_display"],
 		"cleanup":     "true",
 		"log_level":   "info",
-
-		// "video_encoder":  "c2.rk.hevc.encoder",
 	}
 
 	da.adbClient.StartScrcpyServer(options)
